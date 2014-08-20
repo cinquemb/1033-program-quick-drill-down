@@ -295,8 +295,10 @@ em {
 }
 
 table {
-  width: 100%;
+  width: 15% !important;
   border: 1px solid #ebebeb;
+  font-size: .9em !important;
+  width: 20% !important;
 }
 
 th {
