@@ -2,14 +2,16 @@ import os
 import sys
 import re
 import csv
-import codecs
 import json
 import requests
 from time import sleep
 from bs4 import BeautifulSoup
 
-file_ = '1033-program-foia-may-2014.csv'
+def round_format(nom,denom):
+	percent = 100* round(nom/denom, 2)
+	return percent
 
+file_ = '1033-program-foia-may-2014.csv'
 d = dict()
 with open(file_, 'r+') as f_ss:
 	reader = csv.reader(f_ss, delimiter=',')
@@ -61,8 +63,10 @@ for state in d:
 
 		item_dict = dict()
 		item_unit_dict = dict()
+		tot_fed_cost_for_county = 0
 		for item_key in item_keys:
 			tot_fed_cost_for_state += d[state][county][item_key]['cost($)']
+			tot_fed_cost_for_county += d[state][county][item_key]['cost($)']
 
 			if item_key in item_dict:
 				item_dict[item_key] += d[state][county][item_key]['cost($)']
@@ -78,26 +82,21 @@ for state in d:
 
 
 		for key, value in reversed(sorted(item_dict.iteritems(), key=lambda (k,v): (v,k))):
-			"""
-			url = 'http://www.armyproperty.com/nsn/%s/' % (key)
-			r = requests.get(url)		 
-			soup = BeautifulSoup(r.text)
-			title_unfilt = list(soup.h2.stripped_strings)
-			#for title in title_unfilt:
-			#	print title
-
-			title = title_unfilt[0]
-			if not title or title == '' or title == ' ':
-			"""
-
 			title = 'N/A'
-
-			out_county_dict[county] = {'item': key, 'name': title, 'units': item_unit_dict[key], 'cost_sum': '${:,.2f}'.format(value), 'unit_cost':  '${:,.2f}'.format(value/item_unit_dict[key])}
+			if int(tot_fed_cost_for_county) == 0:
+				percent = 'N/A'
+			else:
+				percent = round_format(value, tot_fed_cost_for_county)
+				
+			#print percent
+	
+			out_county_dict[county] = {'item': key, 'name': title, 'units': item_unit_dict[key], 'cost_sum': '${:,.2f}'.format(value), 'unit_cost':  '${:,.2f}'.format(value/item_unit_dict[key]), 'county_cost_sum': tot_fed_cost_for_county, 'percent_of_item_cost_for_county': percent }
+			#print tot_fed_cost_for_county, 'percent_of_county': 100* round(value/tot_fed_cost_for_county, 2)
 			#print 'Most Expesive Item Total Sum for ', county, ' in State ', state, ': ',key, '(',title ,') at', '${:,.2f}'.format(value), 'est. per unit cost: ', '${:,.2f}'.format(value/item_unit_dict[key])
 			break
 
 	for key, value in reversed(sorted(count_dict.iteritems(), key=lambda (k,v): (v,k))):
-		out_state_dict[state] = {'counties_meta_data': out_county_dict, 'most_expensive_county': {'county': key, 'cost_sum': '${:,.2f}'.format(value)}, 'state_cost_sum': tot_fed_cost_for_state}
+		out_state_dict[state] = {'counties_meta_data': out_county_dict, 'most_expensive_county': {'county': key, 'cost_sum': '${:,.2f}'.format(value)}, 'state_cost_sum': tot_fed_cost_for_state, 'percent_cost_of_state': round_format(value, tot_fed_cost_for_state)}
 		#print 'Most Expesive County Total Sum for State: ', state, ': ',key, ' with ', '${:,.2f}'.format(value)
 		break
 
@@ -111,6 +110,8 @@ for key, value in reversed(sorted(state_dict.iteritems(), key=lambda (k,v): (v,k
 
 
 cache_item_dict = dict()
+size = 0
+query_size = 0
 for node in out_state_sorted_list:
 	for key, value in node.iteritems():
 		county_keys = node[key]['counties_meta_data'].keys()
@@ -126,15 +127,18 @@ for node in out_state_sorted_list:
 				if not title or title == '' or title == ' ':
 					title = 'N/A'
 
+				query_size += 1
 				cache_item_dict[query] = title
 			else:
+				#print 'cache used'
+				size += 1
 				title = cache_item_dict[query]
 			
-			print title
+			#print title
 			node[key]['counties_meta_data'][county]['name'] = title
-
 
 data = json.dumps({'2006-2014-foia-gov-surplus-mil': out_state_sorted_list})
 f = open('2006-2014-foia-gov-surplus-mil.json', 'w+')
 f.write(data)
 f.close()
+print 'Url Requests to Cache Used %s percent of time' % (round_format(query_size, size))
