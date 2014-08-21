@@ -1,6 +1,5 @@
 # OS FILE #
 .DS*
-*.csv
 
 # OS DIR #
 env/
