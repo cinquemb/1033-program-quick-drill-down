@@ -71,24 +71,8 @@ for node in raw_data_json_['2006-2014-foia-gov-surplus-mil']:
 						company_info = 'N/A'
 						data_size += 1
 					except IndexError, e:
-
-						#'Cookie: site_order=USER_ID=BDEF4FE9-D508-4554-9D92-1170070BE59A&GUID_TIME=20140821213321; PREF_LANG=; __utma=204617361.1398110140.1408671120.1408671120.1408671120.1; __utmb=204617361.8.10.1408671120; __utmc=204617361; __utmz=204617361.1408671120.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)'
-
-						cookies = {
-							'site_order': 'USER_ID=BDEF4FE9-D508-4554-9D92-1170070BE59A&GUID_TIME=20140821213321',
-							'PREF_LANG': '',
-							'__utma': '204617361.1398110140.1408671120.1408671120.1408671120.1',
-							'__utmb': '204617361.8.10.1408671120',
-							'__utmc': '204617361',
-							'__utmz': '04617361.1408671120.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)'
-						}
-						headers = {
-							'Host': 'www.parttarget.com',
-							'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Firefox/31.0',
-							'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-						}
-
-						r3 = requests.get(url3, headers=headers, cookies=cookies)
+						
+						r3 = requests.get(url3)
 						soup3 = BeautifulSoup(r3.text)	
 
 						try:
