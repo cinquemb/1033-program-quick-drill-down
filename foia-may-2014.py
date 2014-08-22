@@ -217,6 +217,7 @@ for node in out_state_sorted_list:
 			if query not in cache_item_dict:
 				url = 'http://www.armyproperty.com/nsn/%s/' % (query)
 				r = requests.get(url)
+				sleep(.3)
 				soup = BeautifulSoup(r.text)
 				title_unfilt = list(soup.h2.stripped_strings)
 				title = title_unfilt[0]
@@ -224,11 +225,12 @@ for node in out_state_sorted_list:
 				if not title or title == '' or title == ' ':
 					title = 'N/A'
 
-				query_size += 1
+				size += 1
 				cache_item_dict[query] = title
 			else:
 				#print 'cache used'
 				size += 1
+				query_size += 1
 				title = cache_item_dict[query]
 			
 			#print title
