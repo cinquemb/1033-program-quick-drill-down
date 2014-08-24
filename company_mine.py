@@ -101,7 +101,7 @@ for node in raw_data_json_['2006-2014-foia-gov-surplus-mil']:
 							company_info = 'N/A'
 							data_size += 1
 						except IndexError, e:
-							print 'Miss! ', stripped_query, 'Length of string: ', len(stripped_query)
+							print 'Miss! ', stripped_query, 'Length of string: ', len(stripped_query), 'Real Query: ',query
 							#print "{%s:''}" % (stripped_query)
 							company = 'N/A'
 							company_info = 'N/A'
@@ -125,14 +125,16 @@ for node in raw_data_json_['2006-2014-foia-gov-surplus-mil']:
 				node[key]['counties_meta_data'][county]['item_manufacturer'] = company
 			elif node[key]['counties_meta_data'][county]['item_manufacturer'][-2:] == '- ':
 				node[key]['counties_meta_data'][county]['item_manufacturer'] = node[key]['counties_meta_data'][county]['item_manufacturer'][:-2]
+				print 'Name Fixed: ', node[key]['counties_meta_data'][county]['item_manufacturer'][:-2]
+			
+			if node[key]['counties_meta_data'][county]['item_manufacturer_meta_data'] == 'N/A':
+				try:
+					node[key]['counties_meta_data'][county]['item_manufacturer_meta_data'] = company_info
+				except NameError, e:
+					continue
 			
 
-			
-			if node[key]['counties_meta_data'][county]['item_manufacturer_meta_data'] == 'N/A' and company_info:
-				node[key]['counties_meta_data'][county]['item_manufacturer_meta_data'] = company_info
-			
-
-#data = json.dumps(raw_data_json_)
+data = json.dumps(raw_data_json_)
 f = open('2006-2014-foia-gov-surplus-mil.json', 'w+')
 f.write(data)
 f.close()
