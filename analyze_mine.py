@@ -27,6 +27,7 @@ in_.close()
 
 raw_data_json_ = json.loads(raw_data_)
 cache_item_dict = dict()
+cache_item_dict_node = dict()
 
 for node in raw_data_json_['2006-2014-foia-gov-surplus-mil']:
 	for key, value in node.iteritems():
@@ -40,10 +41,16 @@ for node in raw_data_json_['2006-2014-foia-gov-surplus-mil']:
 
 				if company in cache_item_dict:
 					cache_item_dict[company] += cost
+
+					items = cache_item_dict_node[company]
+					if node[key]['counties_meta_data'][county]['item'] not in items:
+						items.append(node[key]['counties_meta_data'][county]['item'])
+					cache_item_dict_node[company] = items
 				else:
 					cache_item_dict[company] = cost
+					cache_item_dict_node[company] = [node[key]['counties_meta_data'][county]['item']]
 
 out_state_sorted_list =[]
 for key, value in reversed(sorted(cache_item_dict.iteritems(), key=lambda (k,v): (v,k))):
 	out_state_sorted_list.append({key: '${:,.2f}'.format(value)})
-	print {key: '${:,.2f}'.format(value)}
+	print '~ %s: %s, items: %s\n' % (key ,'${:,.2f}'.format(value), cache_item_dict_node[key])
