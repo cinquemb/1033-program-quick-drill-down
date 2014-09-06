@@ -36,7 +36,7 @@ for node in raw_data_json_['2006-2014-foia-gov-surplus-mil']:
 			query = node[key]['counties_meta_data'][county]['item']
 
 			if node[key]['counties_meta_data'][county]['item_manufacturer'] != 'N/A':
-				company = node[key]['counties_meta_data'][county]['item_manufacturer'] 
+				company = node[key]['counties_meta_data'][county]['item_manufacturer'].lower().rstrip()
 				cost = float(re.sub(',', '', node[key]['counties_meta_data'][county]['cost_sum'][1:]))
 
 				if company in cache_item_dict:
